@@ -15,9 +15,7 @@ const BASEMAP_STYLE: maplibregl.StyleSpecification = {
   sources: {
     basemap: {
       type: "raster",
-      tiles: [
-        "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
-      ],
+      tiles: ["https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"],
       tileSize: 256,
       attribution: "© OpenStreetMap-bijdragers © CARTO",
     },
@@ -38,6 +36,10 @@ function escapeHtml(s: string): string {
   );
 }
 
+function lngLatOf(f: maplibregl.MapGeoJSONFeature): [number, number] {
+  return (f.geometry as unknown as { coordinates: [number, number] }).coordinates;
+}
+
 export default function MapView({
   chargePoints,
   sportLocations,
@@ -46,6 +48,10 @@ export default function MapView({
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MlMap | null>(null);
+  // Read by the (once-registered) popup handlers so they always reflect the
+  // radius currently selected in the UI.
+  const radiusRef = useRef(radiusM);
+  radiusRef.current = radiusM;
 
   // Init map once.
   useEffect(() => {
@@ -89,9 +95,8 @@ export default function MapView({
           const f = e.features?.[0];
           if (!f) return;
           const p = f.properties as Record<string, string | number>;
-          const [lng, lat] = (f.geometry as unknown as { coordinates: [number, number] }).coordinates;
           new maplibregl.Popup({ closeButton: false })
-            .setLngLat([lng, lat])
+            .setLngLat(lngLatOf(f))
             .setHTML(
               `<div style="padding:8px 10px;font:12px/1.4 system-ui">
                 <div style="font-weight:600">${escapeHtml(String(p.name || "Laadpunt"))}</div>
@@ -128,56 +133,63 @@ export default function MapView({
           type: "geojson",
           data: sportLocations as never,
         });
-        const radiusExpr: maplibregl.ExpressionSpecification = [
-          "interpolate", ["linear"], ["zoom"], 6, 2, 10, 4, 14, 7,
-        ];
         // Green: a charge point is within the chosen radius.
         map.addLayer({
           id: "sport-yes",
           type: "circle",
           source: "sportlocaties",
           paint: {
-            "circle-radius": radiusExpr,
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"], 6, 2, 10, 4, 14, 7,
+            ],
             "circle-color": "#16a34a",
             "circle-opacity": 0.7,
           },
         });
-        // Red: no charge point within the chosen radius.
+        // Red: no charge point within the chosen radius. Slightly larger.
+        // NOTE: a zoom expression may only sit at the top level of an
+        // interpolate/step — `["*", <interpolate>, 1.25]` is rejected by
+        // MapLibre and makes the whole addLayer throw. Scale the stops instead.
         map.addLayer({
           id: "sport-no",
           type: "circle",
           source: "sportlocaties",
           paint: {
-            "circle-radius": ["*", radiusExpr, 1.25],
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"], 6, 2.6, 10, 5.2, 14, 9.1,
+            ],
             "circle-color": "#dc2626",
             "circle-opacity": 0.85,
             "circle-stroke-color": "#ffffff",
             "circle-stroke-width": 0.4,
           },
         });
-        const popup = (color: string) => (e: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
-          const f = e.features?.[0];
-          if (!f) return;
-          const p = f.properties as Record<string, string | number>;
-          const [lng, lat] = (f.geometry as unknown as { coordinates: [number, number] }).coordinates;
-          const d = Number(p.nearestM);
-          const dist = d >= 99999 ? "> 10 km" : `${d} m`;
-          new maplibregl.Popup({ closeButton: false })
-            .setLngLat([lng, lat])
-            .setHTML(
-              `<div style="padding:8px 10px;font:12px/1.4 system-ui">
-                <div style="font-weight:600;color:${color}">${
-                  p.hasCharger ? "Heeft laadpunt in de buurt" : "Geen laadpunt in de buurt"
-                }</div>
-                <div>${escapeHtml(String(p.name || "Naamloos"))}</div>
-                <div style="color:#475569">${escapeHtml(String(p.leisure || ""))}${
-                  p.sport ? " · " + escapeHtml(String(p.sport)) : ""
-                }</div>
-                <div>Dichtstbijzijnde laadpunt: ${dist}</div>
-              </div>`,
-            )
-            .addTo(map);
-        };
+        const popup =
+          (color: string) =>
+          (e: maplibregl.MapMouseEvent & { features?: maplibregl.MapGeoJSONFeature[] }) => {
+            const f = e.features?.[0];
+            if (!f) return;
+            const p = f.properties as Record<string, string | number>;
+            const d = Number(p.nearestM);
+            const r = radiusRef.current;
+            new maplibregl.Popup({ closeButton: false })
+              .setLngLat(lngLatOf(f))
+              .setHTML(
+                `<div style="padding:8px 10px;font:12px/1.4 system-ui">
+                  <div style="font-weight:600;color:${color}">${
+                    d <= r ? "Heeft laadpunt in de buurt" : "Geen laadpunt in de buurt"
+                  }</div>
+                  <div>${escapeHtml(String(p.name || "Naamloos"))}</div>
+                  <div style="color:#475569">${escapeHtml(String(p.leisure || ""))}${
+                    p.sport ? " · " + escapeHtml(String(p.sport)) : ""
+                  }</div>
+                  <div>Dichtstbijzijnde laadpunt: ${
+                    d >= 99999 ? "> 10 km" : d + " m"
+                  } (grens ${r} m)</div>
+                </div>`,
+              )
+              .addTo(map);
+          };
         map.on("click", "sport-no", popup("#dc2626"));
         map.on("click", "sport-yes", popup("#16a34a"));
         for (const l of ["sport-no", "sport-yes"]) {
@@ -198,7 +210,18 @@ export default function MapView({
     applySportState(map, view, radiusM);
   }, [view, radiusM]);
 
-  return <div ref={containerRef} className="absolute inset-0" />;
+  // NOTE: do NOT put Tailwind's `absolute inset-0` on the MapLibre container.
+  // MapLibre's own `.maplibregl-map { position: relative }` rule is *unlayered*,
+  // so it beats Tailwind v4's `@layer utilities` no matter the order — the
+  // container silently became `position: relative` with height 0 and the map
+  // was invisible. The wrapper therefore uses inline styles (which outrank any
+  // stylesheet) and the container only carries `h-full w-full`, safe because
+  // MapLibre declares neither width nor height on it.
+  return (
+    <div style={{ position: "absolute", inset: 0 }}>
+      <div ref={containerRef} className="h-full w-full" />
+    </div>
+  );
 }
 
 function applySportState(map: MlMap, view: View, radiusM: number) {
