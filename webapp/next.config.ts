@@ -34,14 +34,17 @@ const nextConfig: NextConfig = {
       {
         source: "/data/:path*.geojson",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=3600, must-revalidate" },
+          // The data is regenerated on every deploy, so it must be revalidated
+          // rather than served stale from a max-age window (an hour of stale
+          // summary.json made the radius selector look like it ignored clicks).
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
           { key: "Content-Type", value: "application/geo+json" },
         ],
       },
       {
         source: "/data/:path*.json",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
         ],
       },
     ];

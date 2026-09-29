@@ -26,7 +26,7 @@ export default function Dashboard() {
   const [chargePoints, setChargePoints] = useState<ChargePoints | null>(null);
   const [sportLocations, setSportLocations] = useState<SportLocations | null>(null);
   const [view, setView] = useState<View>("sportlocaties");
-  const [radiusM, setRadiusM] = useState<number>(300);
+  const [radiusM, setRadiusM] = useState<number>(100);
   const [error, setError] = useState<string | null>(null);
 
   const sportRequested = useRef(false);
