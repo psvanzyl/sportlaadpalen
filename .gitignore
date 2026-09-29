@@ -9,6 +9,7 @@ pipeline/raw/
 
 .env
 .env.*
+project_state.md
 *.log
 .DS_Store
 *.tsbuildinfo
