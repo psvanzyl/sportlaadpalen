@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
-const MAP_TILE_HOSTS = "https://basemaps.cartocdn.com https://*.basemaps.cartocdn.com";
+// Only the OSM tile server is needed now — the CARTO basemap was dropped
+// because it started requiring an API key (it served "API KEY REQUIRED"
+// placeholder tiles without one).
+const MAP_TILE_HOSTS = "https://tile.openstreetmap.org https://*.tile.openstreetmap.org";
 
 const nextConfig: NextConfig = {
   compress: true,

@@ -10,14 +10,21 @@ const NL_BOUNDS: [[number, number], [number, number]] = [
   [7.3, 53.6],
 ];
 
+// Key-free raster basemap straight from OpenStreetMap. CARTO's
+// `basemaps.cartocdn.com` used to be free, but it now serves placeholder tiles
+// reading "API KEY REQUIRED" unless you sign up for a key — that watermark is
+// what showed up as the ugly grey background. tile.openstreetmap.org needs no
+// key and no account; just correct attribution.
 const BASEMAP_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
     basemap: {
       type: "raster",
-      tiles: ["https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"],
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
       tileSize: 256,
-      attribution: "© OpenStreetMap-bijdragers © CARTO",
+      maxzoom: 19,
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>-bijdragers',
     },
   },
   layers: [{ id: "basemap", type: "raster", source: "basemap" }],
