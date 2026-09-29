@@ -7,6 +7,9 @@ export interface ChargePointProps {
   name: string;
   city: string;
   powerKw: number;
+  /** Laadpunten (OCPI EVSEs) at this location — one EVSE charges one car. */
+  chargePoints: number;
+  /** Physical sockets; a location can expose more than one per EVSE. */
   connectors: number;
 }
 
@@ -30,7 +33,15 @@ export interface TypeBucket {
 
 export interface Summary {
   generatedAt: string;
-  chargePoints: { total: number };
+  chargePoints: {
+    /** Laadpunten (OCPI EVSEs) — the unit the RVO monitor counts. */
+    total: number;
+    /** Same, excluding EVSEs reported as REMOVED or PLANNED. */
+    active: number;
+    /** Physical locations, i.e. the number of features on the map. */
+    locations: number;
+    connectors: number;
+  };
   sportLocations: { total: number; withCharger: number; withoutCharger: number };
   defaultRadiusM: number;
   radii: number[];

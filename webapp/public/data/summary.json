@@ -1,12 +1,15 @@
 {
-  "generatedAt": "2026-09-29T08:27:08Z",
+  "generatedAt": "2026-09-29T15:06:28Z",
   "chargePoints": {
-    "total": 74765
+    "total": 187489,
+    "active": 182391,
+    "locations": 74879,
+    "connectors": 188196
   },
   "sportLocations": {
     "total": 64350,
-    "withCharger": 38907,
-    "withoutCharger": 25443
+    "withCharger": 38923,
+    "withoutCharger": 25427
   },
   "defaultRadiusM": 300,
   "radii": [
@@ -17,42 +20,42 @@
   ],
   "byRadius": {
     "250": {
-      "withCharger": 34929,
-      "withoutCharger": 29421
+      "withCharger": 34956,
+      "withoutCharger": 29394
     },
     "300": {
-      "withCharger": 38907,
-      "withoutCharger": 25443
+      "withCharger": 38923,
+      "withoutCharger": 25427
     },
     "500": {
-      "withCharger": 47312,
-      "withoutCharger": 17038
+      "withCharger": 47317,
+      "withoutCharger": 17033
     },
     "1000": {
-      "withCharger": 53805,
-      "withoutCharger": 10545
+      "withCharger": 53813,
+      "withoutCharger": 10537
     }
   },
   "byType": {
     "pitch": {
       "total": 43927,
-      "withCharger": 28595,
-      "withoutCharger": 15332
+      "withCharger": 28608,
+      "withoutCharger": 15319
     },
     "swimming_pool": {
       "total": 10938,
-      "withCharger": 3001,
-      "withoutCharger": 7937
+      "withCharger": 3002,
+      "withoutCharger": 7936
     },
     "sports_centre": {
       "total": 5893,
-      "withCharger": 4431,
-      "withoutCharger": 1462
+      "withCharger": 4432,
+      "withoutCharger": 1461
     },
     "fitness_centre": {
       "total": 1833,
-      "withCharger": 1670,
-      "withoutCharger": 163
+      "withCharger": 1671,
+      "withoutCharger": 162
     },
     "track": {
       "total": 1334,

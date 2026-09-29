@@ -3,8 +3,10 @@
 
 Builds the static datasets served by the webapp:
 
-  1. laadpunten.geojson     all public charge points in the Netherlands
-                            (NDW DOT-NL OCPI `charging_point_locations`)
+  1. laadpunten.geojson     all publicly accessible charge point locations in the
+                            Netherlands (NDW DOT-NL OCPI `charging_point_locations`).
+                            One feature per location; `chargePoints` holds how many
+                            laadpunten (EVSEs) that location has.
   2. sportlocaties.geojson  all sport locations in the Netherlands (OSM
                             leisure=sports_centre|pitch|stadium|swimming_pool|
                             fitness_centre|sports_hall|track)
@@ -132,20 +134,26 @@ def parse_charge_points(gz_path: Path) -> list[dict]:
 
     points: list[dict] = []
     for loc in locations:
-        if loc.get("country_code") != "NL":
-            continue
         coords = loc.get("coordinates") or {}
         try:
             lon = float(coords.get("longitude"))
             lat = float(coords.get("latitude"))
         except (TypeError, ValueError):
             continue
+        # Select on position, never on `country_code`: several operators publish
+        # their Dutch sites under their own home country code (Tesla uses `US`),
+        # so a country_code == "NL" filter silently drops them.
         if not (3.0 < lon < 7.4 and 50.6 < lat < 53.6):
             continue
 
         max_power_w = 0
+        n_evses = 0
+        n_active = 0
         n_connectors = 0
         for evse in loc.get("evses") or []:
+            n_evses += 1
+            if evse.get("status") not in ("REMOVED", "PLANNED"):
+                n_active += 1
             for conn in evse.get("connectors") or []:
                 n_connectors += 1
                 p = conn.get("max_electric_power")
@@ -160,10 +168,15 @@ def parse_charge_points(gz_path: Path) -> list[dict]:
                 "name": loc.get("name") or "",
                 "city": loc.get("city") or "",
                 "p": int(round(max_power_w / 1000.0)),
-                "n": n_connectors,
+                # One OCPI location can hold several EVSEs; an EVSE is one
+                # "laadpunt" (one car at a time) — the unit RVO counts in.
+                "n": n_evses,
+                "n_active": n_active,
+                "nc": n_connectors,
             }
         )
-    log(f"NDW: {len(points)} public charge points in NL")
+    total = sum(p["n"] for p in points)
+    log(f"NDW: {len(points)} charge point locations / {total} charge points (EVSEs) in NL")
     return points
 
 
@@ -280,7 +293,8 @@ def main() -> int:
                     "name": p["name"],
                     "city": p["city"],
                     "powerKw": p["p"],
-                    "connectors": p["n"],
+                    "chargePoints": p["n"],
+                    "connectors": p["nc"],
                 },
             }
             for p in charge
@@ -333,9 +347,20 @@ def main() -> int:
             bucket["withoutCharger"] += 1
 
     without = by_radius[str(DEFAULT_RADIUS_M)]["withoutCharger"]
+    cp_total = int(sum(p["n"] for p in charge))
+    cp_active = int(sum(p["n_active"] for p in charge))
+    cp_connectors = int(sum(p["nc"] for p in charge))
     summary = {
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "chargePoints": {"total": len(charge)},
+        "chargePoints": {
+            # `total` is the number of laadpunten (OCPI EVSEs) — the unit the
+            # RVO/Dutch government monitor counts. `locations` is the number of
+            # physical locations, which is what the map plots.
+            "total": cp_total,
+            "active": cp_active,
+            "locations": len(charge),
+            "connectors": cp_connectors,
+        },
         "sportLocations": {
             "total": len(sport),
             "withCharger": len(sport) - without,

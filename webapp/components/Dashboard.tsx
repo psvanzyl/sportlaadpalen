@@ -85,6 +85,7 @@ export default function Dashboard() {
   }, [summary]);
 
   const totalCharge = summary?.chargePoints.total ?? 0;
+  const chargeLocations = summary?.chargePoints.locations ?? 0;
   const sportTotal = summary?.sportLocations.total ?? 0;
 
   return (
@@ -174,7 +175,11 @@ export default function Dashboard() {
                 {nf.format(totalCharge)}
               </div>
               <p className="text-sm text-slate-600 mt-1">
-                publieke laadpunten in Nederland.
+                openbaar toegankelijke laadpunten in Nederland, verdeeld over{" "}
+                {nf.format(chargeLocations)} laadlocaties.
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                Eén laadpunt = één auto tegelijk (de tel-eenheid van het RVO-monitor).
               </p>
               <div className="flex items-center gap-1.5 text-xs mt-3 text-slate-500">
                 <span className="w-3 h-3 rounded-full bg-blue-600" /> laadpunt

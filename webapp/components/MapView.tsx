@@ -111,8 +111,8 @@ export default function MapView({
                   p.city ? " · " + escapeHtml(String(p.city)) : ""
                 }</div>
                 <div>${p.powerKw ? Number(p.powerKw) + " kW" : "vermogen onbekend"} · ${
-                  p.connectors || 0
-                } connector(en)</div>
+                  p.chargePoints || 0
+                } laadpunt(en)</div>
               </div>`,
             )
             .addTo(map);
