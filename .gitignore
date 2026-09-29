@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# generated raw downloads (large, re-fetchable via pipeline/build.py)
+pipeline/raw/
+
+.env
+.env.*
+*.log
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
