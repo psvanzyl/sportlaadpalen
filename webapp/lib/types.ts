@@ -47,6 +47,8 @@ export interface Summary {
   radii: number[];
   byRadius: Record<string, { withCharger: number; withoutCharger: number }>;
   byType: Record<string, TypeBucket>;
+  /** Same breakdown, keyed by radius in metres, so the table can follow the selector. */
+  byTypeByRadius: Record<string, Record<string, TypeBucket>>;
   sources: { chargePoints: string; sportLocations: string };
 }
 

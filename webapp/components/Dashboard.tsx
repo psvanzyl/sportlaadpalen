@@ -76,13 +76,15 @@ export default function Dashboard() {
   }, [sportLocations, radiusM, summary]);
 
   const byType = useMemo(() => {
-    if (!summary) return [];
-    return Object.entries(summary.byType).map(([key, v]) => ({
+    const src =
+      summary?.byTypeByRadius?.[String(radiusM)] ?? summary?.byType ?? null;
+    if (!src) return [];
+    return Object.entries(src).map(([key, v]) => ({
       key,
       label: leisureLabel(key),
       ...v,
     }));
-  }, [summary]);
+  }, [summary, radiusM]);
 
   const totalCharge = summary?.chargePoints.total ?? 0;
   const chargeLocations = summary?.chargePoints.locations ?? 0;
@@ -146,7 +148,7 @@ export default function Dashboard() {
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500">
                 <span>Afstand:</span>
-                {[250, 300, 500, 1000].map((r) => (
+                {(summary?.radii ?? [100, 250, 500, 1000]).map((r) => (
                   <button
                     key={r}
                     onClick={() => setRadiusM(r)}
@@ -191,7 +193,7 @@ export default function Dashboard() {
           {view === "sportlocaties" && byType.length > 0 && (
             <section className="bg-white rounded-xl border border-slate-200 p-4">
               <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">
-                Per type (bij {summary?.defaultRadiusM ?? 300} m)
+                Per type (bij {radiusM} m)
               </h2>
               <table className="w-full text-xs">
                 <thead>

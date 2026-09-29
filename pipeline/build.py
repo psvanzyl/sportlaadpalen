@@ -50,8 +50,8 @@ OVERPASS_ENDPOINTS = [
 ]
 USER_AGENT = "sportlaadpalen/1.0 (https://github.com/psvanzyl/sportlaadpalen)"
 
-RADII_M = [250, 300, 500, 1000]
-DEFAULT_RADIUS_M = 300
+RADII_M = [100, 250, 500, 1000]
+DEFAULT_RADIUS_M = 100
 
 LEISURE_RE = "^(sports_centre|pitch|stadium|swimming_pool|fitness_centre|sports_hall|track)$"
 OVERPASS_QUERY = f"""
@@ -336,15 +336,26 @@ def main() -> int:
             "withoutCharger": len(sport) - within,
         }
 
-    by_type: dict[str, dict[str, int]] = {}
-    for s in sport:
-        key = s["leisure"] or "overig"
-        bucket = by_type.setdefault(key, {"total": 0, "withCharger": 0, "withoutCharger": 0})
-        bucket["total"] += 1
-        if s["nearestM"] <= DEFAULT_RADIUS_M:
-            bucket["withCharger"] += 1
-        else:
-            bucket["withoutCharger"] += 1
+    # Per sport type, counted at every selectable radius, so the "Per type"
+    # table can follow the radius selector without a rebuild.
+    by_type_by_radius: dict[str, dict[str, dict[str, int]]] = {}
+    for r in RADII_M:
+        buckets: dict[str, dict[str, int]] = {}
+        for s in sport:
+            key = s["leisure"] or "overig"
+            bucket = buckets.setdefault(
+                key, {"total": 0, "withCharger": 0, "withoutCharger": 0}
+            )
+            bucket["total"] += 1
+            if s["nearestM"] <= r:
+                bucket["withCharger"] += 1
+            else:
+                bucket["withoutCharger"] += 1
+        by_type_by_radius[str(r)] = dict(
+            sorted(buckets.items(), key=lambda kv: -kv[1]["total"])
+        )
+
+    by_type = by_type_by_radius[str(DEFAULT_RADIUS_M)]
 
     without = by_radius[str(DEFAULT_RADIUS_M)]["withoutCharger"]
     cp_total = int(sum(p["n"] for p in charge))
@@ -369,9 +380,8 @@ def main() -> int:
         "defaultRadiusM": DEFAULT_RADIUS_M,
         "radii": RADII_M,
         "byRadius": by_radius,
-        "byType": dict(
-            sorted(by_type.items(), key=lambda kv: -kv[1]["total"])
-        ),
+        "byType": by_type,
+        "byTypeByRadius": by_type_by_radius,
         "sources": {
             "chargePoints": "NDW DOT-NL OCPI (charging_point_locations)",
             "sportLocations": "OpenStreetMap (leisure=sports_centre|pitch|stadium|swimming_pool|fitness_centre|sports_hall|track)",

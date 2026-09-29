@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T15:06:28Z",
+  "generatedAt": "2026-09-29T15:53:49Z",
   "chargePoints": {
     "total": 187489,
     "active": 182391,
@@ -8,24 +8,24 @@
   },
   "sportLocations": {
     "total": 64350,
-    "withCharger": 38923,
-    "withoutCharger": 25427
+    "withCharger": 12345,
+    "withoutCharger": 52005
   },
-  "defaultRadiusM": 300,
+  "defaultRadiusM": 100,
   "radii": [
+    100,
     250,
-    300,
     500,
     1000
   ],
   "byRadius": {
+    "100": {
+      "withCharger": 12345,
+      "withoutCharger": 52005
+    },
     "250": {
       "withCharger": 34956,
       "withoutCharger": 29394
-    },
-    "300": {
-      "withCharger": 38923,
-      "withoutCharger": 25427
     },
     "500": {
       "withCharger": 47317,
@@ -39,38 +39,188 @@
   "byType": {
     "pitch": {
       "total": 43927,
-      "withCharger": 28608,
-      "withoutCharger": 15319
+      "withCharger": 8711,
+      "withoutCharger": 35216
     },
     "swimming_pool": {
       "total": 10938,
-      "withCharger": 3002,
-      "withoutCharger": 7936
+      "withCharger": 776,
+      "withoutCharger": 10162
     },
     "sports_centre": {
       "total": 5893,
-      "withCharger": 4432,
-      "withoutCharger": 1461
+      "withCharger": 1649,
+      "withoutCharger": 4244
     },
     "fitness_centre": {
       "total": 1833,
-      "withCharger": 1671,
-      "withoutCharger": 162
+      "withCharger": 913,
+      "withoutCharger": 920
     },
     "track": {
       "total": 1334,
-      "withCharger": 842,
-      "withoutCharger": 492
+      "withCharger": 113,
+      "withoutCharger": 1221
     },
     "sports_hall": {
       "total": 356,
-      "withCharger": 310,
-      "withoutCharger": 46
+      "withCharger": 169,
+      "withoutCharger": 187
     },
     "stadium": {
       "total": 69,
-      "withCharger": 58,
-      "withoutCharger": 11
+      "withCharger": 14,
+      "withoutCharger": 55
+    }
+  },
+  "byTypeByRadius": {
+    "100": {
+      "pitch": {
+        "total": 43927,
+        "withCharger": 8711,
+        "withoutCharger": 35216
+      },
+      "swimming_pool": {
+        "total": 10938,
+        "withCharger": 776,
+        "withoutCharger": 10162
+      },
+      "sports_centre": {
+        "total": 5893,
+        "withCharger": 1649,
+        "withoutCharger": 4244
+      },
+      "fitness_centre": {
+        "total": 1833,
+        "withCharger": 913,
+        "withoutCharger": 920
+      },
+      "track": {
+        "total": 1334,
+        "withCharger": 113,
+        "withoutCharger": 1221
+      },
+      "sports_hall": {
+        "total": 356,
+        "withCharger": 169,
+        "withoutCharger": 187
+      },
+      "stadium": {
+        "total": 69,
+        "withCharger": 14,
+        "withoutCharger": 55
+      }
+    },
+    "250": {
+      "pitch": {
+        "total": 43927,
+        "withCharger": 25682,
+        "withoutCharger": 18245
+      },
+      "swimming_pool": {
+        "total": 10938,
+        "withCharger": 2589,
+        "withoutCharger": 8349
+      },
+      "sports_centre": {
+        "total": 5893,
+        "withCharger": 4025,
+        "withoutCharger": 1868
+      },
+      "fitness_centre": {
+        "total": 1833,
+        "withCharger": 1617,
+        "withoutCharger": 216
+      },
+      "track": {
+        "total": 1334,
+        "withCharger": 697,
+        "withoutCharger": 637
+      },
+      "sports_hall": {
+        "total": 356,
+        "withCharger": 297,
+        "withoutCharger": 59
+      },
+      "stadium": {
+        "total": 69,
+        "withCharger": 49,
+        "withoutCharger": 20
+      }
+    },
+    "500": {
+      "pitch": {
+        "total": 43927,
+        "withCharger": 34851,
+        "withoutCharger": 9076
+      },
+      "swimming_pool": {
+        "total": 10938,
+        "withCharger": 4003,
+        "withoutCharger": 6935
+      },
+      "sports_centre": {
+        "total": 5893,
+        "withCharger": 5197,
+        "withoutCharger": 696
+      },
+      "fitness_centre": {
+        "total": 1833,
+        "withCharger": 1758,
+        "withoutCharger": 75
+      },
+      "track": {
+        "total": 1334,
+        "withCharger": 1115,
+        "withoutCharger": 219
+      },
+      "sports_hall": {
+        "total": 356,
+        "withCharger": 332,
+        "withoutCharger": 24
+      },
+      "stadium": {
+        "total": 69,
+        "withCharger": 61,
+        "withoutCharger": 8
+      }
+    },
+    "1000": {
+      "pitch": {
+        "total": 43927,
+        "withCharger": 39706,
+        "withoutCharger": 4221
+      },
+      "swimming_pool": {
+        "total": 10938,
+        "withCharger": 5045,
+        "withoutCharger": 5893
+      },
+      "sports_centre": {
+        "total": 5893,
+        "withCharger": 5611,
+        "withoutCharger": 282
+      },
+      "fitness_centre": {
+        "total": 1833,
+        "withCharger": 1779,
+        "withoutCharger": 54
+      },
+      "track": {
+        "total": 1334,
+        "withCharger": 1264,
+        "withoutCharger": 70
+      },
+      "sports_hall": {
+        "total": 356,
+        "withCharger": 347,
+        "withoutCharger": 9
+      },
+      "stadium": {
+        "total": 69,
+        "withCharger": 61,
+        "withoutCharger": 8
+      }
     }
   },
   "sources": {
