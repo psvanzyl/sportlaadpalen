@@ -5,9 +5,22 @@ import type { NextConfig } from "next";
 // placeholder tiles without one).
 const MAP_TILE_HOSTS = "https://tile.openstreetmap.org https://*.tile.openstreetmap.org";
 
+// Two deployments build from this same source:
+//   1. sportlaadpalen.laserraptorai.duckdns.org  — `next start`, no env vars.
+//   2. zeroemission.duckdns.org/dashboards/sportlaadpalen/ — static export
+//      (NEXT_STATIC_EXPORT=1) served under a sub-path (NEXT_PUBLIC_BASE_PATH).
+// Both env vars are unset for deployment 1, so its behaviour is unchanged.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const staticExport = process.env.NEXT_STATIC_EXPORT === "1";
+
 const nextConfig: NextConfig = {
   compress: true,
-  async headers() {
+  ...(basePath ? { basePath } : {}),
+  ...(staticExport ? { output: "export" as const, trailingSlash: true } : {}),
+  // headers() is a server feature; `output: "export"` cannot apply it. The
+  // portal deployment serves the export through nginx, which sets its own
+  // security headers, so gating it out here is safe.
+  ...(staticExport ? {} : { async headers() {
     const securityHeaders = [
       { key: "X-Content-Type-Options", value: "nosniff" },
       { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -48,7 +61,7 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
-  },
+  } }),
 };
 
 export default nextConfig;

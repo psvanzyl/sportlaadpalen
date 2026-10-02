@@ -21,6 +21,11 @@ const MapView = dynamic(() => import("@/components/MapView"), {
 
 const nf = new Intl.NumberFormat("nl-NL");
 
+// Empty on the standalone deployment; "/dashboards/sportlaadpalen" in the
+// zeroemission portal (baked in at build time by NEXT_PUBLIC_BASE_PATH).
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+const dataUrl = (file: string) => `${BASE_PATH}/data/${file}`;
+
 export default function Dashboard() {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [chargePoints, setChargePoints] = useState<ChargePoints | null>(null);
@@ -33,7 +38,7 @@ export default function Dashboard() {
 
   // Summary + charge points load once.
   useEffect(() => {
-    fetch("/data/summary.json")
+    fetch(dataUrl("summary.json"))
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`summary ${r.status}`))))
       .then((d: Summary) => {
         setSummary(d);
@@ -41,7 +46,7 @@ export default function Dashboard() {
       })
       .catch((e) => setError(String(e)));
 
-    fetch("/data/laadpunten.geojson")
+    fetch(dataUrl("laadpunten.geojson"))
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`laadpunten ${r.status}`))))
       .then((d: ChargePoints) => setChargePoints(d))
       .catch((e) => setError(String(e)));
@@ -51,7 +56,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (view !== "sportlocaties" || sportRequested.current) return;
     sportRequested.current = true;
-    fetch("/data/sportlocaties.geojson")
+    fetch(dataUrl("sportlocaties.geojson"))
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`sportlocaties ${r.status}`))))
       .then((d: SportLocations) => setSportLocations(d))
       .catch((e) => setError(String(e)));
